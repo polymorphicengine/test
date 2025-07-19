@@ -8,21 +8,35 @@ on:
 jobs:
   build:
     runs-on: ubuntu-22.04
+    container: alpine:3.12
     strategy:
       matrix:
         ghc: ["9.8.2"]
         cabal: ["3.10.3.0"]
 
     steps:
-      - name: Check out code
-        uses: actions/checkout@v4
+      - name: Install system dependencies
+        run: |
+          apk add --no-cache curl gcc g++ gmp-dev ncurses-dev libffi-dev make xz gzip tar perl git bash sudo binutils-gold
+          apk add --no-cache zlib zlib-dev zlib-static gmp gmp-dev ncurses-static
 
-      - name: Setup Haskell
-        uses: haskell-actions/setup@v2
-        id: setup
-        with:
-          ghc-version: ${{ matrix.ghc }}
-          cabal-version: ${{ matrix.cabal }}
+      - name: Install ghcup
+        run: |
+          curl --proto '=https' --tlsv1.2 -sSf https://get-ghcup.haskell.org  > /usr/bin/ghcup
+          chmod +x /usr/bin/ghcup
+          echo "$HOME/.ghcup/bin" $GITHUB_PATH
+        shell: bash
+
+      - name: Install GHC and cabal
+        run: |
+          ghcup install ghc ${{ matrix.ghc }}
+          ghcup set ghc ${{ matrix.ghc }}
+          ghcup install cabal ${{ matrix.cabal }}
+        shell: bash
+
+      - name: Update cabal cache
+        run: cabal update
+        shell: bash
 
       - name: Checkout code  
         run: git clone https://codeberg.org/uzu/zwirn
@@ -30,7 +44,7 @@ jobs:
       - name: Dry run of build
         run: | 
               cd zwirn 
-              cabal build all --dry-run
+              cabal build all --dry-run --ghc-options='-split-sections -optl-static'
 
       - name: Restore cached dependencies
         uses: actions/cache/restore@v4
@@ -47,7 +61,7 @@ jobs:
         if: steps.cache.outputs.cache-hit != 'true'
         run: |
               cd zwirn
-              cabal build all --only-dependencies
+              cabal build all --only-dependencies --ghc-options='-split-sections -optl-static'
 
       # Cache dependencies already here, so that we do not have to rebuild them should the subsequent steps fail.
       - name: Save cached dependencies
@@ -61,7 +75,7 @@ jobs:
       - name: cabal build
         run: |
              cd zwirn
-             cabal build all --enable-executable-stripping --enable-executable-static
+             cabal build all --enable-executable-stripping --enable-executable-static --ghc-options='-split-sections -optl-static'
 
       - name: set build location to var
         run: |
