@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-22.04
     container: alpine:3.12
     env:
-      name: x86_64-linux
+      name: zwirnzi-${{ github.ref_name }}-x86_64-linux
       ghc: "9.8.2"
       cabal: "3.10.3.0"
 
@@ -80,12 +80,12 @@ jobs:
         run: mkdir build
 
       - name: move executable
-        run: mv "$bin_path" build/zwirnzi-${{ env.name }}
+        run: mv "$bin_path" build/${{ env.name }}
         
       - name: strip executable
-        run: cd build && strip zwirnzi-${{ env.name }}
+        run: cd build && strip ${{ env.name }}
         
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
-          files: build/zwirnzi-${{ env.name }}
+          files: build/${{ env.name }}
