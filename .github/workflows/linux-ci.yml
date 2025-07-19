@@ -27,7 +27,10 @@ jobs:
     steps:
       - name: Host - Create docker crossbuild container
         run: docker run --name runners -it -d -v ${{ github.workspace }}:/root ${{ matrix.container }}:edge
-    
+
+      - name: Docker -a test
+        run: docker exec runners apk --print-arch
+      
       - name: Install system dependencies
         run: |
           apk add --no-cache curl gcc g++ gmp-dev ncurses-dev libffi-dev make xz gzip tar perl git bash sudo binutils-gold
