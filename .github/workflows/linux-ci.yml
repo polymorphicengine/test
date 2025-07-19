@@ -61,7 +61,7 @@ jobs:
       - name: cabal build
         run: |
              cd zwirn
-             cabal build --enable-executable-stripping --enable-executbale-static
+             cabal build all --enable-executable-stripping --enable-executable-static
 
       - name: set build location to var
         run: |
