@@ -6,13 +6,13 @@ on:
       - "v*.*.*"
 
 jobs:
-  build:
+  release-linux-static:
     runs-on: ubuntu-22.04
     container: alpine:3.12
-    strategy:
-      matrix:
-        ghc: ["9.8.2"]
-        cabal: ["3.10.3.0"]
+    env:
+      name: x86_64-linux
+      ghc: "9.8.2"
+      cabal: "3.10.3.0"
 
     steps:
       - name: Install system dependencies
@@ -24,9 +24,9 @@ jobs:
 
       - name: Install GHC and cabal
         run: |
-          ghcup install ghc ${{ matrix.ghc }}
-          ghcup set ghc ${{ matrix.ghc }}
-          ghcup install cabal ${{ matrix.cabal }}
+          ghcup install ghc ${{ env.ghc }}
+          ghcup set ghc ${{ env.ghc }}
+          ghcup install cabal ${{ env.cabal }}
 
       - name: Update cabal cache
         run: cabal update
@@ -44,7 +44,7 @@ jobs:
         uses: actions/cache/restore@v4
         id: cache
         env:
-          key: ${{ runner.os }}-ghc-${{ matrix.ghc-version }}-cabal-${{ matrix.cabal-version }}
+          key: ${{ runner.os }}-ghc-${{ env.ghc }}-cabal-${{ env.cabal }}
         with:
           path: /home/runner/.cabal/store
           key: ${{ env.key }}-plan-${{ hashFiles('**/plan.json') }}
@@ -80,9 +80,12 @@ jobs:
         run: mkdir build
 
       - name: move executable
-        run: mv "$bin_path" build/zwirnzi
-
+        run: mv "$bin_path" build/zwirnzi-${{ env.name }}
+        
+      - name: strip executable
+        run: cd build && strip zwirnzi-${{ env.name }}
+        
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
-          files: build/zwirnzi
+          files: build/zwirnzi-${{ env.name }}
