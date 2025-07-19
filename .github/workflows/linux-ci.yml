@@ -15,17 +15,7 @@ jobs:
         cabal: ["3.10.3.0"]
 
     steps:
-      - name: Install system dependencies
-        run: |
-          apk add --no-cache curl gcc g++ gmp-dev ncurses-dev libffi-dev make xz gzip tar perl git bash sudo binutils-gold
-          apk add --no-cache zlib zlib-dev zlib-static gmp gmp-dev ncurses-static
-
-      - name: Install ghcup
-        run: |
-          curl --proto '=https' --tlsv1.2 -sSf https://get-ghcup.haskell.org  > /usr/bin/ghcup
-          chmod +x /usr/bin/ghcup
-          echo "$HOME/.ghcup/bin" $GITHUB_PATH
-        shell: bash
+      - uses: haskell/ghcup-setup@v1
 
       - name: Install GHC and cabal
         run: |
