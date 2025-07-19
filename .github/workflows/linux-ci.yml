@@ -17,8 +17,8 @@ jobs:
     steps:
       - name: Install system dependencies
         run: |
-          apk add --no-cache binutils-gold curl gcc g++ gmp-dev libc-dev libffi-dev make musl-dev ncurses-dev perl tar xz bash sudo
-          apk add --no-cache zlib zlib-dev zlib-static gmp ncurses-static
+          apk add --no-cache binutils-gold curl gcc g++ gmp-dev libc-dev libffi-dev make musl-dev ncurses-dev perl tar xz
+          apk add --no-cache bash sudo git zlib zlib-dev zlib-static gmp ncurses-static
         
       - uses: haskell/ghcup-setup@v1
 
