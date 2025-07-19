@@ -17,9 +17,9 @@ jobs:
     steps:
       - name: Install system dependencies
         run: |
-          apk add --no-cache curl gcc g++ gmp-dev ncurses-dev libffi-dev make xz gzip tar perl git bash sudo binutils-gold
-          apk add --no-cache zlib zlib-dev zlib-static gmp gmp-dev ncurses-static
-          
+          apk add --no-cache binutils-gold curl gcc g++ gmp-dev libc-dev libffi-dev make musl-dev ncurses-dev perl tar xz bash sudo
+          apk add --no-cache zlib zlib-dev zlib-static gmp ncurses-static
+        
       - uses: haskell/ghcup-setup@v1
 
       - name: Install GHC and cabal
