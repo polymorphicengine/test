@@ -44,9 +44,9 @@ jobs:
         uses: actions/cache/restore@v4
         id: cache
         env:
-          key: ${{ runner.os }}-ghc-${{ steps.setup.outputs.ghc-version }}-cabal-${{ steps.setup.outputs.cabal-version }}
+          key: ${{ runner.os }}-ghc-${{ matrix.ghc-version }}-cabal-${{ matrix.cabal-version }}
         with:
-          path: ${{ steps.setup.outputs.cabal-store }}
+          path: /home/runner/.cabal/store
           key: ${{ env.key }}-plan-${{ hashFiles('**/plan.json') }}
           restore-keys: ${{ env.key }}-
 
@@ -63,7 +63,7 @@ jobs:
         # If we had an exact cache hit, trying to save the cache would error because of key clash.
         if: steps.cache.outputs.cache-hit != 'true'
         with:
-          path: ${{ steps.setup.outputs.cabal-store }}
+          path: /home/runner/.cabal/store
           key: ${{ steps.cache.outputs.cache-primary-key }}
 
       - name: cabal build
