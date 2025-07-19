@@ -8,7 +8,7 @@ on:
 jobs:
   release-linux-amd64:
     runs-on: ubuntu-22.04
-    container: alpine:edge
+    container: alpine:3.12
     env:
       name: x86_64-linux
       ghc: "9.8.2"
@@ -17,8 +17,8 @@ jobs:
     steps:
       - name: Install system dependencies
         run: |
-          apk add --no-cache binutils-gold curl gcc g++ gmp-dev libc-dev libffi-dev make musl-dev ncurses-dev perl tar xz
-          apk add --no-cache bash sudo git zlib zlib-dev zlib-static gmp ncurses-static
+          apk add --no-cache curl gcc g++ gmp-dev ncurses-dev libffi-dev make xz gzip tar perl git bash sudo binutils-gold
+          apk add --no-cache zlib zlib-dev zlib-static gmp gmp-dev ncurses-static
         
       - uses: haskell/ghcup-setup@v1
 
