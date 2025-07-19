@@ -8,7 +8,7 @@ on:
 jobs:
   release-linux-static:
     runs-on: ${{ matrix.runner }}
-    container: alpine:3.12
+    # container: alpine:3.12
     env:
       name: x86_64-linux
       ghc: "9.8.2"
@@ -18,11 +18,16 @@ jobs:
         include:
          - runner: "ubuntu-22.04"
            name: x86_64-linux
+           container: "amd64/alpine"
          - runner: "ubuntu-22.04-arm"
            name: arm64-linux
+           container: "arm64v8/alpine"
 
 
     steps:
+      - name: Host - Create docker crossbuild container
+        run: docker run --name runners -it -d -v ${{ github.workspace }}:/root ${{ matrix.container }}:edge
+    
       - name: Install system dependencies
         run: |
           apk add --no-cache curl gcc g++ gmp-dev ncurses-dev libffi-dev make xz gzip tar perl git bash sudo binutils-gold
