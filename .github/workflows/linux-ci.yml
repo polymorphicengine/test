@@ -4,6 +4,7 @@ on:
   push:
     tags:
       - "*.*.*.*"
+      - "*.*.*.*-nightly"
 
 jobs:
   release-linux-amd64:
@@ -34,6 +35,10 @@ jobs:
 
       - name: Checkout code  
         run: git clone https://codeberg.org/uzu/zwirn
+
+      - name: If nightly release, checkout dev branch
+        if: ${{ github.ref_name#*- }} == "nightly"
+        run: cd zwirn && git checkout dev
       
       - name: Dry run of build
         run: | 
