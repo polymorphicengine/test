@@ -31,10 +31,7 @@ jobs:
           ghcup install cabal ${{ env.cabal }}
 
       - name: Update cabal cache
-        run: |
-             cabal update  
-             find /github -type d -name store
-             find /github -type d -name .cabal
+        run: cabal update  
         shell: bash
 
       - name: Checkout code  
@@ -74,6 +71,11 @@ jobs:
       - name: cabal build
         run: cd zwirn && cabal build zwirnzi --enable-executable-stripping --enable-executable-static --ghc-options='-split-sections -optl-static'
 
+      - name: find cabal
+        run: |
+             find / -type d -name store
+             find / -type d -name .cabal
+      
       - name: set build location to var
         run: cd zwirn && echo "bin_path=$(cabal list-bin zwirnzi)" >> "$GITHUB_ENV"
 
