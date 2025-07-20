@@ -17,6 +17,15 @@ jobs:
     continue-on-error: true
 
     steps:
+      - name: test
+        run: |
+             echo ${{github.workspace}}
+             ls -a  
+             cd ..
+             ls -a 
+             cd ..
+             ls -a
+      
       - name: Install system dependencies
         run: |
           apk add --no-cache curl gcc g++ gmp-dev ncurses-dev libffi-dev make xz gzip tar perl git bash sudo binutils-gold
