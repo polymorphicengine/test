@@ -7,13 +7,14 @@ on:
       - "*.*.*.*-nightly"
 
 jobs:
-  release-linux-amd64:
+  release-linux:
     runs-on: ubuntu-22.04
     container: alpine:3.12
     env:
       name: zwirnzi-${{ github.ref_name }}-x86_64-linux
       ghc: "9.8.2"
       cabal: "3.10.3.0"
+    continue-on-error: true
 
     steps:
       - name: Install system dependencies
@@ -41,9 +42,7 @@ jobs:
         run: cd zwirn && git checkout dev
       
       - name: Dry run of build
-        run: | 
-              cd zwirn 
-              cabal build all --dry-run --ghc-options='-split-sections -optl-static'
+        run: cd zwirn && cabal build all --dry-run --ghc-options='-split-sections -optl-static'
 
       - name: Restore cached dependencies
         uses: actions/cache/restore@v4
@@ -58,9 +57,7 @@ jobs:
       - name: Install dependencies
         # If we had an exact cache hit, the dependencies will be up to date.
         if: steps.cache.outputs.cache-hit != 'true'
-        run: |
-              cd zwirn
-              cabal build all --only-dependencies --ghc-options='-split-sections -optl-static'
+        run: cd zwirn && cabal build all --only-dependencies --ghc-options='-split-sections -optl-static'
 
       # Cache dependencies already here, so that we do not have to rebuild them should the subsequent steps fail.
       - name: Save cached dependencies
@@ -72,14 +69,10 @@ jobs:
           key: ${{ steps.cache.outputs.cache-primary-key }}
 
       - name: cabal build
-        run: |
-             cd zwirn
-             cabal build all --enable-executable-stripping --enable-executable-static --ghc-options='-split-sections -optl-static'
+        run: cd zwirn && cabal build all --enable-executable-stripping --enable-executable-static --ghc-options='-split-sections -optl-static'
 
       - name: set build location to var
-        run: |
-             cd zwirn
-             echo "bin_path=$(cabal list-bin zwirnzi)" >> "$GITHUB_ENV"
+        run: cd zwirn && echo "bin_path=$(cabal list-bin zwirnzi)" >> "$GITHUB_ENV"
 
       - name: make directory
         run: mkdir build
@@ -94,3 +87,79 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: build/${{ env.name }}
+
+  release-macos:
+    env:
+      ghc: "9.8.2"
+      cabal: "3.10.3.0"
+    strategy:
+        matrix:
+          include:
+             - name: zwirnzi-${{ github.ref_name }}-x86_64-macos
+               platform: macOS-13
+             - name: zwirnzi-${{ github.ref_name }}-arm64-macos
+               platform: macOS-latest
+    runs-on: ${{ matrix.platform }}
+    continue-on-error: true
+    
+    steps:
+      - name: Setup Haskell
+        uses: haskell-actions/setup@v2
+        id: setup
+        with:
+          ghc-version: ${{ matrix.ghc }}
+          cabal-version: ${{ matrix.cabal }}
+
+      - name: Checkout code  
+        run: git clone https://codeberg.org/uzu/zwirn
+
+      - name: If nightly release, checkout dev branch
+        if: contains(${{ github.ref_name }}, "nightly")
+        run: cd zwirn && git checkout dev
+
+      - name: Dry run of build
+        run: cd zwirn && cabal build all --dry-run --ghc-options='-split-sections -optl-static'
+
+      - name: Restore cached dependencies
+        uses: actions/cache/restore@v4
+        id: cache
+        env:
+          key: ${{ runner.os }}-ghc-${{ steps.setup.outputs.ghc-version }}-cabal-${{ steps.setup.outputs.cabal-version }}
+        with:
+          path: ${{ steps.setup.outputs.cabal-store }}
+          key: ${{ env.key }}-plan-${{ hashFiles('**/plan.json') }}
+          restore-keys: ${{ env.key }}-
+
+      - name: Install dependencies
+        # If we had an exact cache hit, the dependencies will be up to date.
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: cd zwirn && cabal build all --only-dependencies --ghc-options='-split-sections -optl-static'
+
+      # Cache dependencies already here, so that we do not have to rebuild them should the subsequent steps fail.
+      - name: Save cached dependencies
+        uses: actions/cache/save@v4
+        # If we had an exact cache hit, trying to save the cache would error because of key clash.
+        if: steps.cache.outputs.cache-hit != 'true'
+        with:
+          path: ${{ steps.setup.outputs.cabal-store }}
+          key: ${{ steps.cache.outputs.cache-primary-key }}
+
+      - name: cabal build
+        run: cd zwirn && cabal build --enable-executable-stripping --enable-executable-static --ghc-options='-split-sections -optl-static'
+
+      - name: set build location to var
+        run: cd zwirn && echo "bin_path=$(cabal list-bin zwirnzi)" >> "$GITHUB_ENV"
+
+      - name: make directory
+        run: mkdir build
+
+      - name: move executable
+        run: mv "$bin_path" build/${{ matrix.name }}
+
+      - name: strip executable
+        run: cd build && strip ${{ matrix.name }}
+
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: build/${{ matrix.name }}
