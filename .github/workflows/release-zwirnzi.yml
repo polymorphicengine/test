@@ -31,7 +31,7 @@ jobs:
           ghcup install cabal ${{ env.cabal }}
 
       - name: Update cabal cache
-        run: cabal update
+        run: cabal update && ls -a -R
         shell: bash
 
       - name: Checkout code  
