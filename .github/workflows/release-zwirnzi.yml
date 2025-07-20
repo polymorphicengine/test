@@ -151,7 +151,7 @@ jobs:
           key: ${{ steps.cache.outputs.cache-primary-key }}
 
       - name: cabal build
-        run: cd zwirn && cabal build --enable-executable-stripping --enable-executable-static --ghc-options='-split-sections -optl-static'
+        run: cd zwirn && cabal build zwirnzi --enable-executable-stripping --enable-executable-static --ghc-options='-split-sections -optl-static'
         shell: bash
 
       - name: set build location to var
