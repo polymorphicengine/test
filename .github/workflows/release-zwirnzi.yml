@@ -33,11 +33,7 @@ jobs:
       - name: Update cabal cache
         run: |
              cabal update  
-             ls -a -R
-             cd ..
-             ls -a
-             cd ..
-             ls -a
+             ls /github/home/ -a -R
         shell: bash
 
       - name: Checkout code  
@@ -56,7 +52,7 @@ jobs:
         env:
           key: ${{ runner.os }}-ghc-${{ env.ghc }}-cabal-${{ env.cabal }}
         with:
-          path: /home/runner/.cabal/store
+          path: github/home/.cabal/store
           key: ${{ env.key }}-plan-${{ hashFiles('**/plan.json') }}
           restore-keys: ${{ env.key }}-
 
