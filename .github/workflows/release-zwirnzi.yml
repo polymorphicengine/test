@@ -99,6 +99,8 @@ jobs:
                platform: macOS-13
              - name: zwirnzi-${{ github.ref_name }}-arm64-macos
                platform: macOS-latest
+             - name: zwirnzi-${{ github.ref_name }}-x86_64-windows.exe
+               platform: windows-latest
     runs-on: ${{ matrix.platform }}
     continue-on-error: true
     
@@ -112,13 +114,16 @@ jobs:
 
       - name: Checkout code  
         run: git clone https://codeberg.org/uzu/zwirn
+        shell: bash
 
       - name: If nightly release, checkout dev branch
         if: contains(${{ github.ref_name }}, "nightly")
         run: cd zwirn && git checkout dev
+        shell: bash
 
       - name: Dry run of build
         run: cd zwirn && cabal build zwirnzi --dry-run --ghc-options='-split-sections -optl-static'
+        shell: bash
 
       - name: Restore cached dependencies
         uses: actions/cache/restore@v4
@@ -134,6 +139,7 @@ jobs:
         # If we had an exact cache hit, the dependencies will be up to date.
         if: steps.cache.outputs.cache-hit != 'true'
         run: cd zwirn && cabal build zwirnzi --only-dependencies --ghc-options='-split-sections -optl-static'
+        shell: bash
 
       # Cache dependencies already here, so that we do not have to rebuild them should the subsequent steps fail.
       - name: Save cached dependencies
@@ -146,17 +152,22 @@ jobs:
 
       - name: cabal build
         run: cd zwirn && cabal build --enable-executable-stripping --enable-executable-static --ghc-options='-split-sections -optl-static'
+        shell: bash
 
       - name: set build location to var
         run: cd zwirn && echo "bin_path=$(cabal list-bin zwirnzi)" >> "$GITHUB_ENV"
+        shell: bash
 
       - name: make directory
         run: mkdir build
+        shell: bash
 
       - name: move executable
         run: mv "$bin_path" build/${{ matrix.name }}
+        shell: bash
 
       - name: strip executable
+        if: matrix.platform != 'windows-latest'
         run: cd build && strip ${{ matrix.name }}
 
       - name: Release
