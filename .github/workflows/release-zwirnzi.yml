@@ -50,7 +50,7 @@ jobs:
         env:
           key: ${{ runner.os }}-ghc-${{ env.ghc }}-cabal-${{ env.cabal }}
         with:
-          path: github/home/.cabal/store
+          path: /github/home/.local/state/cabal/store
           key: ${{ env.key }}-plan-${{ hashFiles('**/plan.json') }}
           restore-keys: ${{ env.key }}-
 
@@ -70,11 +70,6 @@ jobs:
 
       - name: cabal build
         run: cd zwirn && cabal build zwirnzi --enable-executable-stripping --enable-executable-static --ghc-options='-split-sections -optl-static'
-
-      - name: find cabal
-        run: |
-             find / -type d -name store
-             find / -type d -name .cabal
       
       - name: set build location to var
         run: cd zwirn && echo "bin_path=$(cabal list-bin zwirnzi)" >> "$GITHUB_ENV"
