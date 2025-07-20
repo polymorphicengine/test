@@ -88,7 +88,7 @@ jobs:
         with:
           files: build/${{ env.name }}
 
-  release-macos:
+  release-macos-windows:
     env:
       ghc: "9.8.2"
       cabal: "3.10.3.0"
@@ -122,7 +122,7 @@ jobs:
         shell: bash
 
       - name: Dry run of build
-        run: cd zwirn && cabal build zwirnzi --dry-run --ghc-options='-split-sections -optl-static'
+        run: cd zwirn && cabal build zwirnzi --dry-run
         shell: bash
 
       - name: Restore cached dependencies
@@ -138,7 +138,7 @@ jobs:
       - name: Install dependencies
         # If we had an exact cache hit, the dependencies will be up to date.
         if: steps.cache.outputs.cache-hit != 'true'
-        run: cd zwirn && cabal build zwirnzi --only-dependencies --ghc-options='-split-sections -optl-static'
+        run: cd zwirn && cabal build zwirnzi --only-dependencies
         shell: bash
 
       # Cache dependencies already here, so that we do not have to rebuild them should the subsequent steps fail.
@@ -151,7 +151,7 @@ jobs:
           key: ${{ steps.cache.outputs.cache-primary-key }}
 
       - name: cabal build
-        run: cd zwirn && cabal build zwirnzi --enable-executable-stripping --enable-executable-static --ghc-options='-split-sections -optl-static'
+        run: cd zwirn && cabal build zwirnzi --enable-executable-stripping
         shell: bash
 
       - name: set build location to var
