@@ -109,8 +109,8 @@ jobs:
         uses: haskell-actions/setup@v2
         id: setup
         with:
-          ghc-version: ${{ matrix.ghc }}
-          cabal-version: ${{ matrix.cabal }}
+          ghc-version: ${{ env.ghc }}
+          cabal-version: ${{ env.cabal }}
 
       - name: Checkout code  
         run: git clone https://codeberg.org/uzu/zwirn
