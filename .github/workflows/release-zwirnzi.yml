@@ -33,7 +33,7 @@ jobs:
       - name: Update cabal cache
         run: |
              cabal update  
-             find github/home -type -d -name .cabal
+             find github/home -type d -name store
         shell: bash
 
       - name: Checkout code  
