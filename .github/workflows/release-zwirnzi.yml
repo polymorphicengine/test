@@ -65,7 +65,7 @@ jobs:
         # If we had an exact cache hit, trying to save the cache would error because of key clash.
         if: steps.cache.outputs.cache-hit != 'true'
         with:
-          path: /home/runner/.cabal/store
+          path: /github/home/.local/state/cabal/store
           key: ${{ steps.cache.outputs.cache-primary-key }}
 
       - name: cabal build
