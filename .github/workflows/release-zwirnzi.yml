@@ -16,16 +16,7 @@ jobs:
       cabal: "3.10.3.0"
     continue-on-error: true
 
-    steps:
-      - name: test
-        run: |
-             echo ${{github.workspace}}
-             ls -a  
-             cd ..
-             ls -a 
-             cd ..
-             ls -a
-      
+    steps:   
       - name: Install system dependencies
         run: |
           apk add --no-cache curl gcc g++ gmp-dev ncurses-dev libffi-dev make xz gzip tar perl git bash sudo binutils-gold
@@ -40,7 +31,13 @@ jobs:
           ghcup install cabal ${{ env.cabal }}
 
       - name: Update cabal cache
-        run: cabal update && ls /home/runner/ -a -R
+        run: |
+             cabal update  
+             ls -a -R
+             cd ..
+             ls -a
+             cd ..
+             ls -a
         shell: bash
 
       - name: Checkout code  
