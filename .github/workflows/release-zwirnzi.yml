@@ -33,7 +33,7 @@ jobs:
       - name: Update cabal cache
         run: |
              cabal update  
-             ls /github/home/ -a -R
+             cabal user-config init
         shell: bash
 
       - name: Checkout code  
